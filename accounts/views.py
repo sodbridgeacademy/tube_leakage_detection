@@ -6,6 +6,11 @@ from django.core.exceptions import ValidationError
 from .forms import UserProfileForm, UserRegisterForm, DatasetUploadForm
 from .models import Profile, Dataset
 
+import pandas as pd
+from sklearn.preprocessing import StandardScaler  
+from sklearn.ensemble import IsolationForest 
+import numpy as np
+
 
 # All views here!
 def index(request):
@@ -71,14 +76,120 @@ def upload_dataset_view(request):
     if request.method == 'POST':
         form = DatasetUploadForm(request.POST, request.FILES)
         if form.is_valid():
+        	#print('form is valid!')
+            print('form is valid!')
             dataset = form.save(commit=False)
             dataset.user = request.user
             dataset.save()
-            # Preprocess and run anomaly detection here
-            return redirect('results')
+
+            # Load the uploaded dataset
+            dataset_path = dataset.file.path
+            data = pd.read_csv(dataset_path)
+            print(f'data deets => {data.shape}')
+
+            # Generate a summary of the dataset
+            data_head = data.head()
+            print('data head =>', data_head[0:5])
+            data_description = data.describe()
+            data_shape = data.shape
+
+            context = {
+                'form': form,
+                'data_head': data_head,
+                'data_description': data_description,
+                'data_shape': data_shape,
+            }
+            return redirect('data_summary', dataset_id=dataset.id)
+            #return render(request, 'data_summary.html', context)
     else:
         form = DatasetUploadForm()
     return render(request, 'upload_file.html', {'form': form})
+
+
+@login_required
+def data_summary_view(request, dataset_id):
+    # Retrieve the dataset using the dataset_id parameter
+    dataset = get_object_or_404(Dataset, id=dataset_id)
+
+    # Load the uploaded dataset
+    data = pd.read_csv(dataset.file.path)
+
+    # Generate a summary of the dataset
+    data_head = data.head()
+    data_description = data.describe()
+    data_shape = data.shape
+
+    context = {
+        'dataset': dataset,
+        'data_head': data_head,
+        'data_description': data_description,
+        'data_shape': data_shape,
+    }
+    return render(request, 'data_summary.html', context)
+
+
+@login_required
+def perform_anomaly_detection(request):
+    # Load the uploaded dataset
+    dataset = Dataset.objects.filter(user=request.user).latest('created_at')
+    dataset_path = dataset.file.path
+    data = pd.read_csv(dataset_path)
+
+    # Select input variables
+    input_variables = [
+        "COND WTR FLOW", "DEA&FEEDWATER TANK INLET WTR FLOW", "ECO OUTLET A FG O2",
+        "ECO OUTLET B FG O2", "HOT SA A FLOW", "HOT SA B FLOW", "IDF-A INLET FG PRESS",
+        "IDF-B INLET FG PRESS", "MAIN FEEDWATER FLOW", "Total Primary Air Flow",
+        "GEN SIDE MW", "GEN SIDE FREQ"
+    ]
+
+    # Select the features
+    features = input_variables
+
+    # Extract the features
+    extracted_features = data[features]
+
+    # Cluster the data points using K-Means
+    n_clusters = 2  # You can adjust the number of clusters as needed
+    kmeans = KMeans(n_clusters=n_clusters, random_state=0)
+    labels = kmeans.fit_predict(extracted_features)
+
+    # Add the cluster labels to the extracted_features DataFrame
+    extracted_features["LABEL"] = labels
+
+    # Split the data into train/test sets
+    X_train, X_test, y_train, y_test = train_test_split(
+        extracted_features.drop(columns=["LABEL"]), labels, test_size=0.2, random_state=0
+    )
+
+    # Create an isolation forest model
+    model = IsolationForest(random_state=0)
+
+    # Fit the model to the train set
+    model.fit(X_train)
+
+    # Predict anomalies on the testing set
+    anomaly_scores = model.predict(X_test)
+
+    # Convert anomaly scores to binary labels (1 for anomalies, 0 for normal)
+    predicted_labels = [1 if score == -1 else 0 for score in anomaly_scores]
+
+    # Calculate precision, recall, and F1-score
+    precision = precision_score(y_test, predicted_labels)
+    recall = recall_score(y_test, predicted_labels)
+    f1 = f1_score(y_test, predicted_labels)
+
+    # Create a context dictionary with the results
+    context = {
+        'anomalies': anomaly_scores,
+        'precision': precision,
+        'recall': recall,
+        'f1_score': f1,
+    }
+
+    # Render a results page with the context
+    return render(request, 'results.html', context)
+
 
 
 @login_required

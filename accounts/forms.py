@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 class DatasetUploadForm(forms.ModelForm):
     class Meta:
         model = Dataset
-        fields = ['name', 'data']
+        fields = ['name', 'file']
 
 
 class UserRegisterForm(UserCreationForm):

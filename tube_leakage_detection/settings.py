@@ -25,8 +25,7 @@ SECRET_KEY = "django-insecure--gd+^(3x+sx-$oajy01jo7s)01=51h-#1sk$#7!!tyks)f#1cs
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['tubeleakagedetection-production.up.railway.app']
-
+ALLOWED_HOSTS = ['127.0.0.1', 'tubeleakagedetection-production.up.railway.app']
 
 CORS_ALLOWED_ORIGINS = [
     'https://tubeleakagedetection-production.up.railway.app'
