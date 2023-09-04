@@ -1,0 +1,1 @@
+web: gunicorn tube_leakage_detection.wsgi --log-file -
