@@ -1,0 +1,24 @@
+{% load static %}
+{% include 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+ <section id="container-fluid" class="error-page"> <br>
+    	<div class="col-lg-4"></div>
+
+        	<div class="col-lg-4" style="margin: auto;">
+          	 <form method="POST">
+				<legend>Create an Account Now!</legend>
+				{% csrf_token %}
+				{{ form|crispy }}
+				<hr>
+				<input type="submit" style="width: 100%;" class="btn btn-primary" value="Create account" name="">
+				<br><br>
+				<span>Already have an account?</span> 
+				<a href="{% url 'login' %}" class="btn btn-primary">Login</a> <br><hr>
+			</form> 
+			</div>
+        <div class="col-lg-4"></div> 
+       
+    </section>
+{% endblock  %}

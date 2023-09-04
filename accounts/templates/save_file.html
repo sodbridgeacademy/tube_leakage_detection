@@ -1,0 +1,102 @@
+{% load static %}
+{% include 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+    <div id="wrapper">
+        
+        <div class="navbar-default sidebar" role="navigation">
+            <div class="sidebar-nav slimscrollsidebar">
+                <div class="sidebar-head">
+                    <h3>
+                        <img src="{% static 'plugins/images/bklogo.jpeg' %}" style="height:30px; width:50px; " alt="logo" class="img-circle" /> 
+                        <span class="fa-fw open-close"><i class="ti-close ti-menu"></i></span> <span class="hide-menu">PDF-AUDIO</span>
+                    </h3>
+                </div>
+                <ul class="nav" id="side-menu">
+                    <li style="padding: 70px 0 0;">
+                        <a href="{% url 'dashboard' %}" class="waves-effect"><i class="fa fa-clock-o fa-fw" aria-hidden="true"></i>Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'upload' %}" class="waves-effect"><i class="fa fa-user fa-fw" aria-hidden="true"></i>Upload pdf</a>
+                    </li>
+                
+                    <li>
+                        <a href="{% url 'file_list' %}" class="waves-effect"><i class="fa fa-font fa-fw" aria-hidden="true"></i>My files</a>
+                    </li>
+                </ul>
+                <div class="center p-20">
+                     <a href="{% url 'logout' %}" target="" class="btn btn-danger btn-block waves-effect waves-light">Logout</a>
+                 </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Left Sidebar -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- Page Content -->
+        <!-- ============================================================== -->
+        <div id="page-wrapper">
+            <div class="container-fluid">
+                <div class="row bg-title">
+                    <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+                        <h4 class="page-title">Audio page</h4> </div>
+                    <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+                        <ol class="breadcrumb">
+                            <li><a href="#">Dashboard</a></li>
+                            <li class="active">Audio File Page</li>
+                        </ol>
+                    </div>
+                </div>
+                <!-- /.row -->
+                <!-- .row -->
+                <div class="row">
+                    <div class="col-md-4 col-xs-12">
+                        <div class="white-box">
+                            <div class="user-bg"> 
+                                <div class="overlay-box">
+                                    <div class="user-content">
+                                        <a href="#"><img src="{{ user.profile.photo.url }}" class="thumb-lg img-circle" alt="img"></a>
+                                        <h4 class="text-white">{{ user}}</h4>
+                                        <h5 class="text-white">{{ user.email }}</h5> </div>
+                                </div>
+                            </div>
+                            <div class="user-btm-box">
+                                <div class="col-md-12 col-sm-4 text-center">
+                                    <p class="text-purple"><i class="ti-facebook"></i></p>
+                                    <h2>Your Audio File</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8 col-xs-12">
+                        <div class="white-box">
+                            <div>
+                                <h3>PDF File:</h3>
+                                <p>{{ file.pdf_file.name }}</p>
+                                <p><strong>PDF File:</strong> <a href="{{ file.pdf_file.url }}" download>{{ file.pdf_file.name }}</a></p>
+                            </div>
+
+                            <div>
+                                <h3>Audio File:</h3>
+                                <p>{{ file.audio_file.name }}</p>
+                                <a href="{{ file.audio_file.url }}" download>Download Audio</a> <hr>
+                                <audio controls preload="auto">
+                                    <source src="{{ file.audio_file.url }}" type="audio/mp3">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container-fluid -->
+            
+        </div>
+        <!-- /#page-wrapper -->
+    </div>
+    <!-- /#wrapper -->
+
+{% endblock content %}
