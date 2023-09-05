@@ -7,9 +7,13 @@ from .forms import UserProfileForm, UserRegisterForm, DatasetUploadForm
 from .models import Profile, Dataset
 
 import pandas as pd
-from sklearn.preprocessing import StandardScaler  
-from sklearn.ensemble import IsolationForest 
 import numpy as np
+from sklearn.preprocessing import StandardScaler  
+from sklearn.ensemble import IsolationForest
+from sklearn.cluster import KMeans
+from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.model_selection import train_test_split
+
 
 
 # All views here!
@@ -76,8 +80,6 @@ def upload_dataset_view(request):
     if request.method == 'POST':
         form = DatasetUploadForm(request.POST, request.FILES)
         if form.is_valid():
-        	#print('form is valid!')
-            print('form is valid!')
             dataset = form.save(commit=False)
             dataset.user = request.user
             dataset.save()
@@ -89,7 +91,6 @@ def upload_dataset_view(request):
 
             # Generate a summary of the dataset
             data_head = data.head()
-            print('data head =>', data_head[0:5])
             data_description = data.describe()
             data_shape = data.shape
 
@@ -129,9 +130,10 @@ def data_summary_view(request, dataset_id):
 
 
 @login_required
-def perform_anomaly_detection(request):
+def perform_anomaly_detection(request, dataset_id):
     # Load the uploaded dataset
-    dataset = Dataset.objects.filter(user=request.user).latest('created_at')
+    #dataset = Dataset.objects.filter(user=request.user).latest('created_at')
+    dataset = get_object_or_404(Dataset, id=dataset_id)
     dataset_path = dataset.file.path
     data = pd.read_csv(dataset_path)
 
@@ -150,7 +152,7 @@ def perform_anomaly_detection(request):
     extracted_features = data[features]
 
     # Cluster the data points using K-Means
-    n_clusters = 2  # You can adjust the number of clusters as needed
+    n_clusters = 2 
     kmeans = KMeans(n_clusters=n_clusters, random_state=0)
     labels = kmeans.fit_predict(extracted_features)
 
@@ -170,6 +172,7 @@ def perform_anomaly_detection(request):
 
     # Predict anomalies on the testing set
     anomaly_scores = model.predict(X_test)
+    print(f'ANOMALIES => {anomaly_scores}')
 
     # Convert anomaly scores to binary labels (1 for anomalies, 0 for normal)
     predicted_labels = [1 if score == -1 else 0 for score in anomaly_scores]
@@ -182,9 +185,10 @@ def perform_anomaly_detection(request):
     # Create a context dictionary with the results
     context = {
         'anomalies': anomaly_scores,
-        'precision': precision,
-        'recall': recall,
-        'f1_score': f1,
+        'precision': f'{precision:.2%}',
+        'recall': f'{recall:.2%}',
+        'f1_score': f'{f1:.2%}',
+        'data_shape':len(anomaly_scores)
     }
 
     # Render a results page with the context

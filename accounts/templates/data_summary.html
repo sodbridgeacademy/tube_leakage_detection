@@ -134,7 +134,7 @@
                                 <!-- Add other summary information as needed -->
 
                                 <!-- Link to view results -->
-                                <a class="btn btn-primary" href="{% url 'perform_anomaly_detection' %}">Perform Prediction</a>
+                                <a class="btn btn-primary" href="{% url 'perform_anomaly_detection' dataset.id %}">Perform Prediction</a>
                             </div>
                         </div>
                     </div>
@@ -151,7 +151,7 @@
 
 
     <!-- Include jQuery (or any other AJAX library) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!--     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <script>
         $(document).ready(function () {
@@ -159,7 +159,7 @@
             $('#detect-anomalies').click(function () {
                 // Make an AJAX request to perform anomaly detection
                 $.ajax({
-                    url: '{% url "perform_anomaly_detection" %}',
+                    url: '{% url "perform_anomaly_detection" dataset.id  %}',
                     type: 'POST',
                     dataType: 'json',
                     success: function (data) {
@@ -172,7 +172,7 @@
                 });
             });
         });
-    </script>
+    </script> -->
 
 {% endblock content %}
 
