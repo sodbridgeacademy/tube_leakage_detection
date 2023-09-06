@@ -80,27 +80,13 @@
 
     <!-- <h2>Result Summary</h2> -->
     <!-- Display summary information here -->
-    <p>Total Data: {{ data_shape }}</p>
+    <p>Total Test Data: {{ data_shape }}</p>
 
     <h2>Results</h2>
     <!-- Display anomaly detection results here -->
     <p>Precision: {{ precision }}</p>
     <p>Recall: {{ recall }}</p>
     <p>F1 score: {{ f1 }}</p>
-
-  <h2>Anomalies</h2>
-    <!-- Display detected anomalies here -->
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <!-- Define table column headers -->
-                <th>Column 1</th>
-                <th>Column 2</th>
-                <!-- Add more headers for your dataset -->
-            </tr>
-        </thead>
-<!--  -->
-    </table>
 
          <!-- Link back to the data summary page -->
         
@@ -114,6 +100,37 @@
             
         </div>
         <!-- /#page-wrapper -->
+
+        <div id="page-wrapper">
+            <div class="container-fluid">
+        
+                <h2>Anomalies</h2>
+                  <hr> Total Anomaly size: {{ anomalies_shape }}, Showing Top {{ anomalies_head_count }}
+                    <!-- Display detected anomalies here -->
+                    <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <!-- Generate table headers from DataFrame column names -->
+                      {% for column in anomalies_head.columns %}
+                      <th>{{ column }}</th>
+                      {% endfor %}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for index, row in anomalies_head.iterrows %}
+                    <tr>
+                      <!-- Loop through row values and generate table cells -->
+                      {% for value in row %}
+                      <td>{{ value }}</td>
+                      {% endfor %}
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+        </div>
+
+
     </div>
     <!-- /#wrapper -->
 

@@ -4,7 +4,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from .forms import UserProfileForm, UserRegisterForm, DatasetUploadForm
-from .models import Profile, Dataset
+from .models import Profile, Dataset, Result
 
 import pandas as pd
 import numpy as np
@@ -156,6 +156,19 @@ def perform_anomaly_detection(request, dataset_id):
     kmeans = KMeans(n_clusters=n_clusters, random_state=0)
     labels = kmeans.fit_predict(extracted_features)
 
+    # Get the predicted anomalies; Train the isolation forest model
+    xmodel = IsolationForest(n_estimators=100)
+    xmodel.fit(extracted_features)
+
+    # Calculate the anomaly scores for each data point
+    anomaly_scores = xmodel.predict(extracted_features)
+    print(f'ANOMALY SCORES => {anomaly_scores}, {anomaly_scores.shape}')
+
+    # Select the data points with the highest anomaly scores
+    anomalies = extracted_features[anomaly_scores==-1]
+    anomalies_shape = anomalies.shape
+
+
     # Add the cluster labels to the extracted_features DataFrame
     extracted_features["LABEL"] = labels
 
@@ -182,13 +195,30 @@ def perform_anomaly_detection(request, dataset_id):
     recall = recall_score(y_test, predicted_labels)
     f1 = f1_score(y_test, predicted_labels)
 
+    p, r, f = f'{precision:.2}', f'{recall:.2}', f'{f1:.2}'
+    sample_anomalies = anomalies.head(6)
+
+    Result.objects.create(
+            user=request.user,
+            precision= p,
+            recall= r,
+            f1_score= f,
+            dataset=dataset,
+            anomalies_shape=anomalies_shape
+        )
+
     # Create a context dictionary with the results
     context = {
         'anomalies': anomaly_scores,
         'precision': f'{precision:.2%}',
         'recall': f'{recall:.2%}',
         'f1_score': f'{f1:.2%}',
-        'data_shape':len(anomaly_scores)
+        'data_shape':len(anomaly_scores),
+        'anomalies': anomalies,
+        'anomalies_shape':anomalies_shape,
+        'sample_anomalies': sample_anomalies,
+        'anomalies_head': anomalies.head(),
+        'anomalies_head_count':len(anomalies.head())
     }
 
     # Render a results page with the context

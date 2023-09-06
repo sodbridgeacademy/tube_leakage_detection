@@ -26,3 +26,17 @@ class Dataset(models.Model):
   
     def __str__(self):
         return self.user.username
+
+
+
+class Result(models.Model):
+    dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    f1_score = models.FloatField()
+    precision = models.FloatField()
+    recall = models.FloatField()
+    anomalies_shape = models.CharField(max_length=10, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Result for {self.dataset.name} by {self.user.username}"
