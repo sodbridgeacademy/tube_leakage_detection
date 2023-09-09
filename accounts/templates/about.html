@@ -1,0 +1,103 @@
+{% load static %}
+{% include 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div id="wrapper">
+	<div class="navbar-default sidebar" role="navigation">
+            <div class="sidebar-nav slimscrollsidebar">
+                <div class="sidebar-head">
+                    <h3>
+                        <img src="{% static 'plugins/images/OIP.jpeg' %}" style="height:30px; width:50px; " alt="logo" class="img-circle" /> 
+                        <span style="color:red;" class="fa-fw open-close"><i class="ti-close ti-menu"></i></span> <span class="hide-menu">TLD</span>
+                    </h3>
+                </div>
+                <ul class="nav" id="side-menu">
+                    <li style="padding: 70px 0 0;">
+                        <a href="{% url 'dashboard' %}" class="waves-effect"><i class="fa fa-clock-o fa-fw" aria-hidden="true"></i>Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'upload' %}" class="waves-effect"><i class="fa fa-user fa-fw" aria-hidden="true"></i>Upload dataset</a>
+                    </li>
+                
+                    <li>
+                        <a href="{% url 'about' %}" class="waves-effect"><i class="fa fa-font fa-fw" aria-hidden="true"></i>About</a>
+                    </li>
+                </ul>
+                <div class="center p-20">
+                     <a href="{% url 'logout' %}" target="" class="btn btn-danger btn-block waves-effect waves-light">Logout</a>
+                 </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Left Sidebar -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- Page Content -->
+        <!-- ============================================================== -->
+        <div id="page-wrapper">
+            <div class="container-fluid">
+                <div class="row bg-title">
+                    <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+                        <h4 class="page-title">About page</h4> </div>
+                    <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+                        <ol class="breadcrumb">
+                            <li><a href="#">Dashboard</a></li>
+                            <li class="active">About Page</li>
+                        </ol>
+                    </div>
+                </div>
+                <!-- /.row -->
+                <!-- .row -->
+                <div class="row">
+                    <div class="col-md-12 col-xs-12">
+
+		<div>
+			<p>
+				Power plants play a pivotal role in supplying the world's energy demands, generating electricity through a complex network of machinery and systems. One critical component in many power plants is the boiler, where water is heated to produce steam, which drives turbines to generate electricity. However, these boilers are susceptible to a variety of challenges, and one of the most significant concerns is the occurrence of tube leakage. Tube leakage refers to the unintended escape of high-pressure steam or water from the tubes within the boiler. </p>
+
+			<p>
+				Several factors can contribute to tube leakage, including corrosion, erosion, mechanical stress, and inadequate maintenance. Corrosion, often caused by chemical reactions in the boiler environment, weakens the tube walls over time, making them prone to leakage. Erosion, typically due to the high-speed flow of fluids, can wear down tube surfaces. Mechanical stress from temperature variations and pressure fluctuations can also compromise tube integrity. Furthermore, inadequate maintenance practices can exacerbate these issues. Proper monitoring, maintenance, and materials selection are essential for mitigating tube leakage risks in power plants, ensuring the safe and efficient operation of these vital energy facilities.
+			</p>
+
+			<hr>
+			<p>
+				The selected input variables for monitoring a power plant's operation can significantly contribute to understanding and mitigating tube leakage. These variables provide crucial insights into the boiler's condition and performance, allowing operators to detect and address issues promptly. Here's how some of the selected input variables can contribute to tube leakage prevention:
+
+				<ol>
+					<li>
+						COND WTR FLOW (Condensate Water Flow): Monitoring the flow rate of condensate water is essential. A sudden drop in this flow can indicate a potential issue with tube leakage, as less condensate return could result from steam escaping through damaged tubes.
+					</li>
+					<li>
+						DEA&FEEDWATER TANK INLET WTR FLOW (Deaerated Feedwater Tank Inlet Water Flow): Proper deaeration of feedwater is critical for preventing corrosion. If the flow rate of inlet water is irregular or insufficient, it may lead to corrosion-related tube damage.
+					</li>
+					<li>
+						ECO OUTLET A FG O2 (Economizer Outlet Flue Gas Oxygen): Elevated oxygen levels in flue gas can accelerate corrosion within the boiler tubes. Monitoring oxygen levels helps prevent corrosion-related tube leakage.
+					</li>
+					<li>
+						IDF-A INLET FG PRESS (Induced Draft Fan A Inlet Flue Gas Pressure) and IDF-B INLET FG PRESS (Induced Draft Fan B Inlet Flue Gas Pressure): Fluctuations in flue gas pressure can exert mechanical stress on tubes. Monitoring these pressures can help identify conditions that may contribute to tube leakage.
+					</li>
+					<li>
+						MAIN FEEDWATER FLOW: Accurate control of feedwater flow is vital for maintaining proper water levels in the boiler. Inadequate flow or sudden changes can affect tube temperature and integrity.
+					</li>
+					<li>
+						Total Primary Air Flow: Proper combustion requires the right balance of primary air. An imbalance can lead to incomplete combustion, increasing the risk of fouling and corrosion within the boiler.
+					</li>
+					<li>
+						GEN SIDE MW (Generator Side Megawatts) and GEN SIDE FREQ (Generator Side Frequency): These variables represent the electrical output and frequency. Irregularities in these parameters can indicate operational issues that might indirectly affect boiler performance.
+					</li>
+					<hr>
+
+					By continuously monitoring these selected input variables and analyzing their trends, power plant operators can detect abnormal patterns or deviations from expected values. Early identification of anomalies related to these variables can prompt maintenance and corrective actions, reducing the risk of tube leakage and enhancing the overall reliability and safety of the power plant's operation.
+				</ol>
+			</p>
+		</div>
+
+	</div>
+</div>
+
+</div>
+<!-- /#wrapper -->
+
+{% endblock content %}

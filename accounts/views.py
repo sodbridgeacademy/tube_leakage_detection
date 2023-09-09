@@ -21,6 +21,10 @@ def index(request):
     return redirect('login')
 
 
+def about(request):
+    return render(request, 'about.html')
+
+
 def signup_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -42,6 +46,7 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
+
 
 def logout_view(request):
     logout(request)
@@ -87,6 +92,9 @@ def upload_dataset_view(request):
             # Load the uploaded dataset
             dataset_path = dataset.file.path
             data = pd.read_csv(dataset_path)
+            
+            # Set the 'Date' column as the index
+            data.set_index('Date', inplace=True)
             print(f'data deets => {data.shape}')
 
             # Generate a summary of the dataset
@@ -115,6 +123,9 @@ def data_summary_view(request, dataset_id):
     # Load the uploaded dataset
     data = pd.read_csv(dataset.file.path)
 
+    # Set the 'Date' column as the index
+    data.set_index('Date', inplace=True)
+
     # Generate a summary of the dataset
     data_head = data.head()
     data_description = data.describe()
@@ -133,9 +144,16 @@ def data_summary_view(request, dataset_id):
 def perform_anomaly_detection(request, dataset_id):
     # Load the uploaded dataset
     #dataset = Dataset.objects.filter(user=request.user).latest('created_at')
+    
     dataset = get_object_or_404(Dataset, id=dataset_id)
     dataset_path = dataset.file.path
     data = pd.read_csv(dataset_path)
+
+    # Convert 'Date' column to datetime
+    data['Date'] = pd.to_datetime(data['Date'])
+
+    # Set the 'Date' column as the index
+    data.set_index('Date', inplace=True)
 
     # Select input variables
     input_variables = [
@@ -185,7 +203,10 @@ def perform_anomaly_detection(request, dataset_id):
 
     # Predict anomalies on the testing set
     anomaly_scores = model.predict(X_test)
-    print(f'ANOMALIES => {anomaly_scores}')
+    #print(f'ANOMALIES => {anomaly_scores}')
+
+    # Select the data points with the highest anomaly scores
+    anomalies = X_test[anomaly_scores==-1]
 
     # Convert anomaly scores to binary labels (1 for anomalies, 0 for normal)
     predicted_labels = [1 if score == -1 else 0 for score in anomaly_scores]
@@ -198,32 +219,49 @@ def perform_anomaly_detection(request, dataset_id):
     p, r, f = f'{precision:.2}', f'{recall:.2}', f'{f1:.2}'
     sample_anomalies = anomalies.head(6)
 
+    # Reset the index of sample_anomalies and convert the 'Date' column to a string
+    sample_anomalies.reset_index(inplace=True)
+    sample_anomalies['Date'] = sample_anomalies['Date'].dt.strftime('%Y-%m-%d %H:%M:%S')
+
+
+    # Convert the 'Date' column in sample_anomalies to a string
+    #sample_anomalies['Date'] = sample_anomalies.index.strftime('%Y-%m-%d %H:%M:%S')
+
+    list_sample_anomalies = list(sample_anomalies)
+    
+    print(f'sample anomalies original => {sample_anomalies}')
+    print(f'sample anomalies columns list => {list_sample_anomalies}')
+    
+    # Extract the dates from the original dataset
+    #anomaly_dates = data.loc[anomalies.index, "Date"]
+
+
     Result.objects.create(
             user=request.user,
             precision= p,
             recall= r,
             f1_score= f,
             dataset=dataset,
-            anomalies_shape=anomalies_shape
+            anomalies_shape=anomalies_shape,
         )
 
     # Create a context dictionary with the results
     context = {
-        'anomalies': anomaly_scores,
+        'anomalies': anomalies,
         'precision': f'{precision:.2%}',
         'recall': f'{recall:.2%}',
         'f1_score': f'{f1:.2%}',
         'data_shape':len(anomaly_scores),
-        'anomalies': anomalies,
+        #'anomalies': anomalies,
         'anomalies_shape':anomalies_shape,
         'sample_anomalies': sample_anomalies,
-        'anomalies_head': anomalies.head(),
-        'anomalies_head_count':len(anomalies.head())
+        'anomalies_head': sample_anomalies.head(),
+        'anomalies_head_count':len(anomalies.head()),
+        #'anomaly_dates': anomaly_dates
     }
 
     # Render a results page with the context
     return render(request, 'results.html', context)
-
 
 
 @login_required
